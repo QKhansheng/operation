@@ -1,10 +1,12 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.6
 
 import paramiko
 import subprocess
 import logging
 import os
 import sys
+import socket
+import hashlib
 
 def utilLog():
     logger = logging.getLogger('updateNotice')
@@ -18,6 +20,39 @@ def utilLog():
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     return logger
+
+def utilFilepath(file):
+    path = os.path.join(sys.path[0], file)
+    return path
+
+def utilgetAllFile(dir):
+    filelist = []
+    for home, dirs, files in os.walk(dir):
+        # for dir in dirs:
+        #     print(dir)
+        for file in files:
+            if file.endswith(('yml', 'yaml')):
+                fullname = os.path.join(home, file)
+                filelist.append(fullname)
+    return filelist
+
+def utilgetIPhostname():
+    hostname = socket.gethostname()
+    ip = socket.gethostbyname(hostname)
+    return hostname, ip
+
+def utilHashmd5(filepath):
+    if not os.path.isfile(filepath):
+        return
+    myHash = hashlib.md5()
+    f = open(filepath, 'rb')
+    while True:
+        b = f.read(8096)
+        if not b:
+            break
+        myHash.update(b)
+    f.close()
+    return myHash.hexdigest()
 
 def utilSubprocess(ip):
     p = subprocess.Popen(['ping', '-c', '3'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -57,13 +92,14 @@ def utilParamikoSftp(hostIP, port, username, password):
     return sftp, trans
 
 if __name__ == '__main__':
-    print
+    print("演示样例")
     # shell = utilParamikoShell("192.168.110.128", 22, "root", "111111")
     # stdin, stdout, stderr = shell.exec_command("hostname")
     # print(stdout.read().decode('utf-8'))
+    # shell.close()
 
     # sftp, trans = utilParamikoSftp("192.168.110.128", 22, "root", "111111")
     # path = os.path.join(sys.path[0], 'utils.py')
     # sftp.put(path, '/usr/local/utils.py')
-
-
+    
+    
